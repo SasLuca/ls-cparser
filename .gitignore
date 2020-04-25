@@ -1,0 +1,19 @@
+# Ignore everything
+*
+
+# Add:
+!.gitignore
+!CMakeLists.txt
+
+!include/
+!include/*.h
+
+!source/
+!source/*.c
+!source/*.h
+
+!tests/
+!tests/*.c
+!tests/*.hpp
+!tests/*.cpp
+!tests/*.txt
