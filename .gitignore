@@ -4,6 +4,7 @@
 # Add:
 !.gitignore
 !CMakeLists.txt
+!README.md
 
 !include/
 !include/*.h
