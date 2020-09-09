@@ -8,7 +8,8 @@ if(LS_CPARSER_SANITIZERS)
 endif()
 
 add_executable(tests catch2-main.cpp tests.cpp)
-target_link_libraries(tests PRIVATE ls-cparser)
+target_link_libraries(tests PRIVATE lscp)
+target_include_directories(tests PRIVATE ../source)
 
 add_executable(playground playground.c)
-target_link_libraries(playground PRIVATE ls-cparser)
+target_link_libraries(playground PRIVATE lscp)

@@ -1,35 +1,20 @@
-#ifndef LSCP_H
-#define LSCP_H
+#ifndef LSCP_PARSER_H
+#define LSCP_PARSER_H
 
 #include "lscp-common.h"
 #include "lscp-allocator.h"
 #include "lscp-tokenizer.h"
 
-// region enums
 typedef enum lscp_ast_type
 {
     LSCP_AST_UNKNOWN = 0,
-    LSCP_AST_TRANSLATION_UNIT,
-    LSCP_AST_DECLARATION,
     LSCP_AST_FUNCTION_ARG,
     LSCP_AST_FUNCTION_DECL,
     LSCP_AST_VARIABLE_DECL,
+    LSCP_AST_STRUCT_DECL,
+    LSCP_AST_ENUM_DECL,
+    LSCP_AST_UNION_DECL,
 } lscp_ast_type;
-
-typedef enum lscp_error
-{
-    LSCP_NO_ERROR = 0,
-} lscp_error;
-// endregion
-
-// region structs
-
-typedef struct lscp_str lscp_str;
-struct lscp_str
-{
-    const char* chars;
-    lscp_int len;
-};
 
 typedef struct lscp_kv lscp_kv;
 struct lscp_kv
@@ -66,20 +51,20 @@ typedef enum lscp_ts_type
     LSCP_TS_AUTO = LSCP_TK_AUTO_KEYWORD,
     LSCP_TS_INLINE = LSCP_TK_INLINE_KEYWORD,
     LSCP_TS_VARGS = LSCP_TK_DOT,
+    LSCP_TS_TYPEDEF = LSCP_TK_TYPEDEF_KEYWORD,
 } lscp_ts_type;
 
-typedef struct lscp_type_specifier lscp_type_specifier;
-struct lscp_type_specifier
+typedef struct lscp_type_specifier
 {
     lscp_ts_type type;
+
     struct
     {
         struct lscp_ast_node* args;
     } func;
-};
+} lscp_type_specifier;
 
-typedef struct lscp_ast_node lscp_ast_node;
-struct lscp_ast_node
+typedef struct lscp_ast_node
 {
     union { lscp_ast_type type, valid; };
 
@@ -96,19 +81,32 @@ struct lscp_ast_node
 
         struct
         {
-            lscp_ast_node* decls;
+            lscp_tk_index* constants;
+            lscp_tk_index name;
+        } enumeration;
+
+        struct
+        {
+           struct lscp_ast_node* members;
+           lscp_tk_index name;
+        } structure;
+
+        struct
+        {
+            struct lscp_ast_node* decls;
         } var_list;
     };
-};
+} lscp_ast_node;
 
-typedef struct lscp_parse_result lscp_parse_result;
-struct lscp_parse_result
+typedef struct lscp_parse_result
 {
     lscp_token*   tokens;
     lscp_int      tokens_count;
-    lscp_ast_node toplevel;
+    lscp_ast_node* nodes;
+    char*         src;
+    lscp_int      src_size;
     lscp_bool     valid;
-};
+} lscp_parse_result;
 
 typedef struct lscp_parser lscp_parser;
 struct lscp_parser
@@ -121,18 +119,15 @@ struct lscp_parser
 
     lscp_ast_node*    ast_nodes;
 
+    lscp_str*         reserved_names;
+
     lscp_int          curr;
     lscp_bool         valid;
 };
-// endregion
 
-LSCP_API lscp_tokenizer lscp_tokenizer_create(const char* src, lscp_int src_len);
-LSCP_API lscp_bool      lscp_tokenizer_is_done(lscp_tokenizer ctx);
-LSCP_API lscp_token     lscp_get_next_token(lscp_tokenizer* ctx);
-LSCP_API lscp_tokenizer_result lscp_tokenize(const char* src, lscp_int src_len);
+lscp_api void lscp_ast_to_json(lscp_parse_result p);
+lscp_api lscp_bool lscp_is_primitive_type(lscp_token_type type);
+lscp_api lscp_parse_result lscp_parse(const char* code, lscp_int len);
+lscp_api lscp_parse_result lscp_parse_cstr(const char* code);
 
-LSCP_API lscp_bool lscp_is_primitive_type(lscp_token_type type);
-LSCP_API lscp_parse_result lscp_parse(const char* code, lscp_int len);
-LSCP_API lscp_parse_result lscp_parse_cstr(const char* code);
-
-#endif // LSCP_H
+#endif // LSCP_PARSER_H

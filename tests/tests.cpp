@@ -1,6 +1,7 @@
 #include "catch.hpp"
-#include <cstring>
-#include <lscparser.h>
+#include "string.h"
+#include "lscp.h"
+#include "lscp-internal-utils.h"
 
 #define ARRAY_SIZE(x) (sizeof(x) / sizeof(x[0]))
 
@@ -17,6 +18,26 @@ TEST_CASE("LSCP_C_SYMBOLS_COUNT is correct")
 
     REQUIRE(sizeof(chars) - 1 == LSCP_C_SYMBOLS_COUNT); // -1 for the null terminator in the string
     REQUIRE(ARRAY_SIZE(tk) == LSCP_C_SYMBOLS_COUNT);
+}
+
+TEST_CASE("Remove single comment", "[preprocessor]")
+{
+    const char chars[]   = "test // test";
+    const int chars_size = sizeof(chars);
+
+    lscp_str result = lscp_remove_comments(chars, chars_size, lscp_default_allocator);
+
+    REQUIRE(str_match_lit(result, "test "));
+}
+
+TEST_CASE("Remove multiline comment", "[preprocessor]")
+{
+    const char chars[]   = "test /* test */";
+    const int chars_size = sizeof(chars);
+
+    lscp_str result = lscp_remove_comments(chars, chars_size, lscp_default_allocator);
+
+    REQUIRE(str_match_lit(result, "test "));
 }
 
 TEST_CASE("Tokenize symbols and ensure same order in LSCP_C_SYMBOLS_TOKENS and LSCP_C_SYMBOLS", "[tokenizer]")
