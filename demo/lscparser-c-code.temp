@@ -1,0 +1,19 @@
+float** const k[/* test */]; //test
+
+#define TEST
+//#undef TEST
+#ifdef TEST
+
+enum foo {
+    FOO1,
+   FOO2
+};
+
+struct bar {
+    float** const k[/* test */]; //test
+};
+
+int main(int argc, const char** args)
+{
+}
+#endif
