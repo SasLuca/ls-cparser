@@ -12,6 +12,9 @@
 !source/*.c
 !source/*.h
 
+!demo/
+!demo/**
+
 !tests/
 !tests/*.c
 !tests/*.hpp
